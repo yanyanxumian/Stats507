@@ -1,0 +1,150 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# # HW2 Q3
+
+# In[ ]:
+
+
+demo_cohort_set = ["DEMO_G.XPT", "DEMO_H.XPT", "DEMO_I.XPT", "DEMO_J.XPT"]
+demo_col = ["SEQN", "RIDAGEYR", "RIDRETH3", "DMDEDUC2", "DMDMARTL", 'RIDSTATR', 'SDMVPSU', 'SDMVSTRA', 
+           'WTMEC2YR', 'WTINT2YR']
+demo_variable = ["respendent number", "age", "race and ethnicity", 
+                 "education", "marital status", 
+                 "participant's interview and examination status ", 
+                 "masked variance unit pseudo-psu ", 
+                 "masked variance unit pseudo-stratum", 
+                 "mec exam weight", 
+                 "interview weight",
+                 "cohort"]
+demo_df0 = pd.DataFrame(columns=demo_variable)
+
+
+# In[ ]:
+
+
+for cohort in demo_cohort_set:
+    demo_df = pd.read_sas(cohort)
+    demo_df1 = demo_df[demo_col]
+    demo_df1["cohort"] = cohort 
+    demo_df1.columns = demo_variable
+    demo_df0 = pd.concat([demo_df0,demo_df1],ignore_index=True)
+
+
+# In[ ]:
+
+
+demo_type = [int, int, int, 
+            pd.Int64Dtype(), pd.Int64Dtype(), int, 
+            int, int, float, float, pd.StringDtype()]
+dic_type = {}
+i = 0
+for column in demo_df0.columns:
+        dic_type[column] = demo_type[i]
+        i = i+1
+for keys in dic_type.keys():
+    demo_df0[keys] = demo_df0[keys].astype(dic_type[keys])
+demo_df0
+
+
+# In[ ]:
+
+
+demo_df0.to_pickle('demographic_dataset.pkl')
+
+
+# In[ ]:
+
+
+orden_df = pd.read_sas("OHXDEN_G.XPT")
+print(orden_df.columns.tolist())
+
+
+# In[ ]:
+
+
+orden_cohort_set = ["OHXDEN_G.XPT", "OHXDEN_H.XPT", "OHXDEN_I.XPT", "OHXDEN_J.XPT"]
+orden_col0 = ["SEQN", "OHDDESTS"]
+orden_col_TC = []
+orden_col_CTC = []
+for i in range(1, 10):
+    orden_col_TC.append("OHX0"+str(i)+"TC")
+for i in range(10, 33):
+    orden_col_TC.append("OHX"+str(i)+"TC")
+for i in range(2, 10):
+    orden_col_CTC.append("OHX0"+str(i)+"CTC")
+for i in range(10, 16):
+    orden_col_CTC.append("OHX"+str(i)+"CTC")
+for i in range(18, 32):
+    orden_col_CTC.append("OHX"+str(i)+"CTC")
+orden_col = orden_col0+orden_col_TC+orden_col_CTC
+
+
+# In[ ]:
+
+
+orden_variable = ["respendent number", "oral health exam status"]
+for i in range(1, 33):
+    orden_variable.append(str(i)+"#tooth count")
+for i in range(2, 16):
+    orden_variable.append(str(i)+"#coronal caries")
+for i in range(18, 32):
+    orden_variable.append(str(i)+"#coronal caries")
+orden_variable.append("cohort")
+
+
+# In[ ]:
+
+
+orden_df0 = pd.DataFrame(columns=orden_variable)
+for cohort in orden_cohort_set:
+    orden_df = pd.read_sas(cohort)
+    orden_df1 = orden_df[orden_col]
+    orden_df1["cohort"] = cohort 
+    orden_df1.columns = orden_variable
+    orden_df0 = pd.concat([orden_df0,orden_df1],ignore_index=True)
+
+
+# In[ ]:
+
+
+dic_type1 = {}
+i = 0
+for i in range(34):
+    column = orden_variable[i]
+    dic_type1[column] = pd.Int64Dtype()
+    i = i+1
+for i in range(34, 63):
+    column = orden_variable[i]
+    dic_type1[column] = pd.StringDtype()
+    i = i+1
+for keys in dic_type1.keys():
+    orden_df0[keys] = orden_df0[keys].astype(dic_type1[keys])
+
+
+# In[ ]:
+
+
+for i in range(34, 62):
+    orden_df0.iloc[:,i] = orden_df0.iloc[:,i].str.replace("b'", '')
+    orden_df0.iloc[:,i] = orden_df0.iloc[:,i].str.replace("'", '')
+orden_df0
+
+
+# In[ ]:
+
+
+rden_df0.to_pickle("oral health and dentition data.XPT")
+
+
+# In[ ]:
+
+
+demo_df0.shape
+
+
+# In[ ]:
+
+
+orden_df0.shape
+
