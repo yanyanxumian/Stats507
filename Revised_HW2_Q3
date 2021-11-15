@@ -1,0 +1,79 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[ ]:
+
+
+import pandas as pd
+import numpy as np
+from datetime import datetime
+from ps1_solution import ci_prop
+import numpy.random as npra
+from warnings import warn
+import matplotlib.pyplot as plt
+from os.path import exists
+
+
+# In[ ]:
+
+
+demo_cohort_set = ["DEMO_G.XPT", "DEMO_H.XPT", "DEMO_I.XPT", "DEMO_J.XPT"]
+demo_col = ["SEQN", "RIDAGEYR", "RIDRETH3", "DMDEDUC2", "DMDMARTL", 'RIDSTATR', 'SDMVPSU', 'SDMVSTRA', 
+           'WTMEC2YR', 'WTINT2YR','RIAGENDR']
+demo_variable = ["respendent number", "age", "race and ethnicity", 
+                 "education", "marital status", 
+                 "exam_status", 
+                 "masked variance unit pseudo-psu ", 
+                 "masked variance unit pseudo-stratum", 
+                 "mec exam weight", 
+                 "interview weight",
+                 "gender",
+                 "cohort"]
+demo_df0 = pd.DataFrame(columns=demo_variable)
+
+
+# In[ ]:
+
+
+for cohort in demo_cohort_set:
+    demo_df = pd.read_sas(cohort)
+    demo_df1 = demo_df[demo_col]
+    demo_df1["cohort"] = cohort 
+    demo_df1.columns = demo_variable
+    demo_df0 = pd.concat([demo_df0,demo_df1],ignore_index=True)
+
+
+# In[ ]:
+
+
+demo_type = [int, int, int, 
+            pd.Int64Dtype(), pd.Int64Dtype(), int, 
+            int, int, float, float,int, pd.StringDtype()]
+dic_type = {}
+i = 0
+for column in demo_df0.columns:
+        dic_type[column] = demo_type[i]
+        i = i+1
+for keys in dic_type.keys():
+    demo_df0[keys] = demo_df0[keys].astype(dic_type[keys])
+
+
+# In[ ]:
+
+
+HTML(demo_df0[0:10].to_html())
+
+
+# In[ ]:
+
+
+demo_df0.to_feather("demo_data.feather")
+
+
+# In[ ]:
+
+
+file = "demo_data.feather"
+if exists(file):
+    demo_df0 = pd.read_feather(file)
+
